@@ -160,10 +160,39 @@ crime_anal_gu.head()
 # 결측치 있는지 확인
 crime_anal_gu.info()
 
-# 강도 검거율에 NaN값 확인되어 0으로 바꾸기
+# 강도 검거율에 NaN값 확인되어 0으로 바꾸기 / 발생 건수가 없기때문에 0으로 처리
 crime_anal_gu['강도검거율'].fillna(0, inplace= True)
 crime_anal_gu.info()
 
+# 범죄 데이터 정렬을 위한 데이터 정리
+# 정규화 : 최고값은 1, 최소값은 0
+crime_anal_gu.head()
+
+col = ['강도', '살인', '절도', '폭력', '강간']
+crime_anal_norm = crime_anal_gu[col] / crime_anal_gu[col].max()
+crime_anal_norm.head()
+
+# 검거율 추가
+col2 = ['강도검거율', '살인검거율', '절도검거율', '폭력검거율', '강간검거율']
+crime_anal_norm[col2] = crime_anal_gu[col2]
+crime_anal_norm.head()
+
+# 구별 CCTV 자료에서 인구수와 CCTV수 추가
+result_CCTV = pd.read_csv('../data/01. CCTV_result.csv', index_col = '구별', encoding='utf8')
+result_CCTV.head()
+
+crime_anal_norm[['인구수', 'CCTV']] = result_CCTV[['인구수', '총 계']]
+crime_anal_norm.head()
+
+# 정규화된 범죄 발생 건수 전체의 평균을 구해서 범죄 컬럼 대표값으로 사용
+col = ['강도', '살인', '절도', '폭력', '강간']
+crime_anal_norm['범죄'] = np.mean(crime_anal_norm[col], axis = 1)
+crime_anal_norm.head()
+
+# 검거율의 평균을 구해서 검거 컬럼의 대표값으로 사용
+col = ['강도검거율', '살인검거율', '절도검거율', '폭력검거율', '강간검거율']
+crime_anal_norm['검거'] = np.mean(crime_anal_norm[col], axis = 1)
+crime_anal_norm.head()
 
 
 
