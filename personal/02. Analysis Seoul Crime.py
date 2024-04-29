@@ -192,11 +192,89 @@ crime_anal_norm.head()
 # 검거율의 평균을 구해서 검거 컬럼의 대표값으로 사용
 col = ['강도검거율', '살인검거율', '절도검거율', '폭력검거율', '강간검거율']
 crime_anal_norm['검거'] = np.mean(crime_anal_norm[col], axis = 1)
+crime_anal_norm
+
+# Google API 문제로 노원경찰서가 노원구로 안바껴 있는걸 확인
+# 노원경찰서를 노원구로 변경
+crime_anal_norm.rename(index={'노원경찰서': '노원구'}, inplace=True)
+crime_anal_norm
+
+# 서울시 범죄현황 데이터 시각화
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib import rc
+plt.rcParams['axes.unicode_minus'] = False
+%matplotlib inline
+rc('font', family = 'Arial Unicode MS')
+
+# pairplot를 이용 강도, 살인, 폭력에 대한 상관관계 확인
+sns.pairplot(data = crime_anal_norm, vars = ['강도', '살인', '폭력'], kind = 'reg', height = 3)
+plt.show()
+
+# 인구수, CCTV 와 살인, 강도의 상관관계 확인
+def drawGraph():
+    sns.pairplot(data = crime_anal_norm, x_vars=['인구수', 'CCTV'], y_vars= ['살인', '강도'], kind = 'reg', height = 4)
+    plt.show()
+
+drawGraph()
+
+# 인구수, CCTV와 살인검거율, 폭력검거율의 상관관계 확인
+def drawGraph():
+    sns.pairplot(data = crime_anal_norm, x_vars=['인구수', 'CCTV'], y_vars= ['살인검거율', '폭력검거율'], kind = 'reg', height = 4)
+    plt.show()
+
+drawGraph()
+
+# 인구수, CCTV와 절도검거율, 강도검거율의 상관관계 확인
+def drawGraph():
+    sns.pairplot(data = crime_anal_norm, x_vars=['인구수', 'CCTV'], y_vars= ['절도검거율', '강도검거율'], kind = 'reg', height = 4)
+    plt.show()
+
+drawGraph()
 crime_anal_norm.head()
 
+# 검거율 heatmap
+# 검거율 컬럼들을 '검거' 컬럼을 기준으로 정렬
+def drawGraph():
+    #데이터 프레임 생성
+    target_col = ['강도검거율', '살인검거율', '절도검거율', '폭력검거율', '강간검거율', '검거']
+    crime_anal_norm_sort = crime_anal_norm.sort_values(by = '검거', ascending = False)
 
+    #그래프 생성
+    plt.figure(figsize=(10, 10))
+    sns.heatmap(data = crime_anal_norm_sort[target_col],
+               annot = True,
+               fmt = 'f',
+               linewidths= 0.5, # 간격 설정
+               cmap = 'RdPu'
+               )
+    plt.title('범죄 검거 비율(정규화된 검거의 합으로 정렬)')
+    plt.show()
 
+drawGraph()
 
+# 범죄발생 건수를 heatmap으로 표현
+# 범죄 컬럼을 기준으로 정렬
+def drawGraph():
+    #데이터 프레임 생성
+    target_col = ['강도', '살인', '절도', '폭력', '강간', '범죄']
+    crime_anal_norm_sort = crime_anal_norm.sort_values(by = '범죄', ascending = False)
+
+    #그래프 생성
+    plt.figure(figsize=(10, 10))
+    sns.heatmap(data = crime_anal_norm_sort[target_col],
+               annot = True,
+               fmt = 'f',
+               linewidths= 0.5, # 간격 설정
+               cmap = 'RdPu'
+               )
+    plt.title('범죄 발생 비율(정규화된 범죄의 합으로 정렬)')
+    plt.show()
+
+drawGraph()
+
+# 데이터 저장
+crime_anal_norm.to_csv('../data/02. crime_in_Seoul_final.csv', sep = ',', encoding='utf8')
 
 
 
